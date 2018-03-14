@@ -8,8 +8,6 @@ Lingualyrics is still under heavy development but you can try it with clementine
 ### dependencies:
 Python3
 
-`sudo apt install playerctl `
-
 pip3 install requests
 
 ### How to run:
