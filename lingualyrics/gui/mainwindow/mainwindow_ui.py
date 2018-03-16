@@ -33,7 +33,6 @@ class MainWindow():
         builder = Gtk.Builder()
         builder.add_from_file("lingualyrics/gui/mainwindow/lingua_lyric.glade")
         self.presenter = mainwindow_presenter.MainWindowPresenter(self)
-        builder.connect_signals(Handler(self.presenter))
 
         self.window = builder.get_object("window_main")
         self.window.show_all()
@@ -48,6 +47,7 @@ class MainWindow():
         self.volume_slider = builder.get_object("player_volume_adjustment")
 
         self.presenter.start_discovery()
+        builder.connect_signals(Handler(self.presenter))
         Gtk.main()
    
     def set_lyric_text(self, text):
