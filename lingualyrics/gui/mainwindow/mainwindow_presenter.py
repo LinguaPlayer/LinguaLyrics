@@ -38,6 +38,11 @@ class MainWindowPresenter:
 
     def on_can_go_previous(self, can_go_previous):
         self.window.set_previous_media_button_sensitivity(can_go_previous)
+    
+
+    
+    def on_volume_change(self, vol):
+        self.window.set_volume_slider_value(vol)
 
     def play_pause_button_clicked(self):
         self.dbus_handler.player_play_pause()
@@ -47,3 +52,10 @@ class MainWindowPresenter:
         
     def previous_media_button_clicked(self, *args): 
         self.dbus_handler.player_previous_media()
+    
+    def volume_button_clicked(self, *args):
+        self.dbus_handler.toggle_volume()
+    
+    def user_change_volume(self, vol):
+        self.dbus_handler.set_player_volume(vol)
+

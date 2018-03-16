@@ -45,7 +45,10 @@ class DbusHandler:
 
         if 'CanGoNext' in args[1]:
             self.on_can_go_next(args[1]['CanGoNext'])
-            
+        
+        if 'Volume' in args[1]:
+            self.on_volume_change(args[1]['Volume'])
+
         if 'Metadata' in args[1]:
             metadata = args[1]['Metadata']
             self.on_metadata(metadata)
@@ -83,4 +86,28 @@ class DbusHandler:
     
     def player_previous_media(self):
         self.player.Previous() 
+    
+    def on_volume_change(self, vol):
+        self.presenter.on_volume_change(vol)
 
+    def get_volume(self):
+        property_interface = dbus.Interface(self.player, dbus_interface=self.freedesktop_propterties_interface)
+        return property_interface.Get('org.mpris.MediaPlayer2.Player', 'Volume')
+
+    def toggle_volume(self):
+        volume = self.get_volume()
+
+        if volume == 0:
+            if not hasattr(self, 'volume_before_mute'):
+                self.volume_before_mute = 0.5
+            self.set_player_volume(self.volume_before_mute)
+            
+        else:
+            self.volume_before_mute = volume
+            self.set_player_volume(0)
+    
+    def set_player_volume(self, vol):
+        property_interface = dbus.Interface(self.player, dbus_interface=self.freedesktop_propterties_interface)
+        property_interface.Set('org.mpris.MediaPlayer2.Player', 'Volume', vol)
+    
+    

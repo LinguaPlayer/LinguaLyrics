@@ -19,6 +19,12 @@ class Handler:
         
     def on_previous_media_button_clicked(self, *args): 
         self.presenter.previous_media_button_clicked()
+    
+    def on_volume_button_clicked(self, *args):
+        self.presenter.volume_button_clicked()
+    
+    def on_volum_slider_value_changed(self, *args):
+        self.presenter.user_change_volume(args[0].get_value()/20)
 
 
 class MainWindow():
@@ -39,6 +45,7 @@ class MainWindow():
         self.play_icon = builder.get_object("play_icon")
         self.pause_icon = builder.get_object("pause_icon")
         self.player_position_slider = builder.get_object("player_position_slider")
+        self.volume_slider = builder.get_object("player_volume_adjustment")
 
         self.presenter.start_discovery()
         Gtk.main()
@@ -54,10 +61,13 @@ class MainWindow():
     
     def set_play_pause_button_state(self, state):
         if state == "Playing":
-            self.play_pause_button.set_image(self.play_icon)
-        if state == "Paused":
             self.play_pause_button.set_image(self.pause_icon)
+        if state == "Paused":
+            self.play_pause_button.set_image(self.play_icon)
 
     def set_seek_slider_sensitivity(self, sensitive): 
         self.player_position_slider.set_sensitive(sensitive)
+
+    def set_volume_slider_value(self, vol):
+        self.volume_slider.set_value(vol * 20)
     
