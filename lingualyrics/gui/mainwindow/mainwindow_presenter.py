@@ -1,13 +1,17 @@
+import threading
 from lingualyrics.scripts import dbus_handler
 from lingualyrics.scripts import lyric
-
 
 class MainWindowPresenter:
     def __init__(self, window):
         self.window = window
+        self.thread_event = threading.Event()
 
     def start_discovery(self):
         self.dbus_handler = dbus_handler.DbusHandler(self)
+        thread = threading.Thread(target=self.dbus_handler.on_player_position_slider_change, args=(self.thread_event, ))
+        thread.daemon = True
+        thread.start()
 
     def on_new_music_detected(self, artist, title):
         self.get_lyric(artist, title)
@@ -28,6 +32,10 @@ class MainWindowPresenter:
             print('\n')
 
     def on_playback_status(self, status):
+        if status == "Playing":
+            self.thread_event.set()
+        else:
+            self.thread_event.clear()
         self.window.set_play_pause_button_state(status)
 
     def on_can_seek(self, can_seek):
@@ -41,6 +49,9 @@ class MainWindowPresenter:
 
     def on_volume_change(self, vol):
         self.window.set_volume_slider_value(vol)
+
+    def on_player_position_change(self, position, length):
+        self.window.set_player_slider_value(position, length)
 
     def play_pause_button_clicked(self):
         self.dbus_handler.player_play_pause()
@@ -56,3 +67,8 @@ class MainWindowPresenter:
 
     def user_change_volume(self, vol):
         self.dbus_handler.set_player_volume(vol)
+    
+    def user_change_player_position(self, position):
+        self.thread_event.clear()
+        self.dbus_handler.set_player_position(position)
+        self.thread_event.set()

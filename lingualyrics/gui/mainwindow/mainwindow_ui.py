@@ -2,7 +2,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from lingualyrics.gui.mainwindow import mainwindow_presenter
-
+from lingualyrics.scripts import utils
 
 class Handler:
     def __init__(self, presenter):
@@ -25,6 +25,10 @@ class Handler:
     
     def on_volum_slider_value_changed(self, *args):
         self.presenter.user_change_volume(args[0].get_value()/20)
+    
+    def on_position_slider_click(self, *args):
+        # self.presenter.user_change_player_position(args[0].get_value())
+        pass
 
 
 class MainWindow():
@@ -44,6 +48,8 @@ class MainWindow():
         self.play_icon = builder.get_object("play_icon")
         self.pause_icon = builder.get_object("pause_icon")
         self.player_position_slider = builder.get_object("player_position_slider")
+        self.player_position_adjustment = builder.get_object("player_position_adjustment")
+        self.player_position_label = builder.get_object("player_position_label")
         self.volume_slider = builder.get_object("player_volume_adjustment")
 
         self.presenter.start_discovery()
@@ -70,4 +76,8 @@ class MainWindow():
 
     def set_volume_slider_value(self, vol):
         self.volume_slider.set_value(vol * 20)
-    
+
+    def set_player_slider_value(self, position, length):
+        self.player_position_label.set_text(utils.convert_microsecond_to_player_time(position))
+        self.player_position_adjustment.set_upper(length)
+        self.player_position_adjustment.set_value(position)
