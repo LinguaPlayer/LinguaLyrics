@@ -14,25 +14,53 @@ class DbusHandler:
         self.properties_changed_signal = 'PropertiesChanged'
         self.freedesktop_propterties_interface = 'org.freedesktop.DBus.Properties'
         self.music_length = 1
+        self.player = None
+        self.signal_match = None
 
         self.presenter = presenter
         self.last_track = ('', '')
-        bus = dbus.SessionBus()
+
+        self.get_available_players()
+        self.presenter.set_player_list_comboboxtext(self.player_list)
+
+    def is_player_available(self, player_name):
+        return dbus.SessionBus().name_has_owner('org.mpris.MediaPlayer2.'+player_name)
+
+    def get_available_players(self):
         # Get list of players
         self.player_list = []
-        for service in bus.list_names():
+        for service in dbus.SessionBus().list_names():
             if re.match('org.mpris.MediaPlayer2.', service):
                 self.player_list.append(service)
+            
+        return self.player_list
+        
+    def on_owner_name_change(self, new_owner):
+        if new_owner == '':
+            if self.player is None:
+                return
+            if not self.is_player_available(self.player.requested_bus_name.split('.')[-1]):
+                # User kiled the current
+                self.player = None
+                self.presenter.player_closed()
+                self.get_available_players()
+                self.presenter.set_player_list_comboboxtext(self.player_list)
 
+    def create_player_proxy(self, player):
         # Get the metadat of current track of first item playerList
-        if self.player_list != []:
-            self.player = dbus.SessionBus().get_object(self.player_list[0], self.mpris_player_object_path)
-            properties = self.player.GetAll(self.mpris_player_interface)
-            self.on_properties_change(self.mpris_player_interface, properties)
+        complete_name = 'org.mpris.MediaPlayer2.'+player
+        if self.signal_match is not None:
+            self.signal_match.remove()
+        self.player = dbus.SessionBus().get_object(complete_name, self.mpris_player_object_path)
 
-        bus.add_signal_receiver(self.on_properties_change,
+        properties = self.player.GetAll(self.mpris_player_interface)
+        self.on_properties_change(self.mpris_player_interface, properties)
+
+        self.signal_match = dbus.SessionBus().add_signal_receiver(self.on_properties_change,
                                 dbus_interface=self.freedesktop_propterties_interface,
-                                signal_name=self.properties_changed_signal)
+                                signal_name=self.properties_changed_signal,
+                                bus_name=self.player.bus_name)
+        dbus.SessionBus().watch_name_owner(complete_name, self.on_owner_name_change)
 
     def on_properties_change(self, *args, **kwargs):
         if self.mpris_player_interface != args[0]:
@@ -71,8 +99,9 @@ class DbusHandler:
     def on_player_position_slider_change(self, event):
         while True:
             event.wait()
-            position = self.player.GetAll(self.mpris_player_interface)['Position'] 
-            self.presenter.on_player_position_change(position, self.music_length)
+            if self.player is not None:
+                position = self.player.GetAll(self.mpris_player_interface)['Position'] 
+                self.presenter.on_player_position_change(position, self.music_length)
             time.sleep(1)
 
     def on_metadata(self, metadata):
@@ -93,20 +122,27 @@ class DbusHandler:
             self.last_track = (artist, title)
     
     def player_play_pause(self):
-        self.player.PlayPause()
+        if self.player is not None:
+            iface = dbus.Interface(self.player, self.mpris_player_interface)
+            iface.PlayPause()
     
     def player_next_media(self):
-        self.player.Next()
+        if self.player is not None:
+            iface = dbus.Interface(self.player, self.mpris_player_interface)
+            iface.Next()
     
     def player_previous_media(self):
-        self.player.Previous() 
+        if self.player is not None:
+            iface = dbus.Interface(self.player, self.mpris_player_interface)
+            iface.Previous() 
     
     def on_volume_change(self, vol):
         self.presenter.on_volume_change(vol)
 
     def get_volume(self):
-        property_interface = dbus.Interface(self.player, dbus_interface=self.freedesktop_propterties_interface)
-        return property_interface.Get(self.mpris_player_interface, 'Volume')
+        if self.player is not None:
+            property_interface = dbus.Interface(self.player, dbus_interface=self.freedesktop_propterties_interface)
+            return property_interface.Get(self.mpris_player_interface, 'Volume')
 
     def toggle_volume(self):
         volume = self.get_volume()
@@ -121,13 +157,11 @@ class DbusHandler:
             self.set_player_volume(0)
 
     def set_player_volume(self, vol):
-        property_interface = dbus.Interface(self.player, dbus_interface=self.freedesktop_propterties_interface)
-        property_interface.Set('org.mpris.MediaPlayer2.Player', 'Volume', vol)
-    
+        if self.player is not None:
+            property_interface = dbus.Interface(self.player, dbus_interface=self.freedesktop_propterties_interface)
+            property_interface.Set('org.mpris.MediaPlayer2.Player', 'Volume', vol)
+
     def set_player_position(self, position):
-        iface = dbus.Interface(self.player, self.mpris_player_interface)
-        iface.SetPosition(self.track_id, position)
-
-
-
-    
+        if self.player is not None:
+            iface = dbus.Interface(self.player, self.mpris_player_interface)
+            iface.SetPosition(self.track_id, position)

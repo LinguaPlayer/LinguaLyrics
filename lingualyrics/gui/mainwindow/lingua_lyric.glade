@@ -58,6 +58,12 @@
     <property name="vexpand">False</property>
     <property name="icon_name">media-skip-backward</property>
   </object>
+  <object class="GtkImage" id="refresh_button_icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixel_size">24</property>
+    <property name="icon_name">view-refresh</property>
+  </object>
   <object class="GtkTextBuffer" id="textbuffer1">
     <property name="text" translatable="yes">I follow the Moskva
 Down to Gorky Park
@@ -159,7 +165,7 @@ In the winds of change
               <object class="GtkLabel" id="player_position_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">00:03</property>
+                <property name="label" translatable="yes">00:00</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -171,6 +177,7 @@ In the winds of change
             <child>
               <object class="GtkScale" id="player_position_slider">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="valign">center</property>
                 <property name="adjustment">player_position_adjustment</property>
@@ -277,11 +284,11 @@ In the winds of change
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="margin_left">26</property>
-                <property name="margin_right">26</property>
                 <property name="layout_style">start</property>
                 <child>
                   <object class="GtkButton" id="previouse_media_button">
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="image">previous_media_icon</property>
@@ -298,6 +305,7 @@ In the winds of change
                 <child>
                   <object class="GtkButton" id="play_pause_button">
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="image">pause_icon</property>
@@ -314,6 +322,7 @@ In the winds of change
                 <child>
                   <object class="GtkButton" id="next_media_button">
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="image">next_media_icon</property>
@@ -335,7 +344,31 @@ In the winds of change
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkComboBoxText" id="player_list_comboboxtext">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <signal name="changed" handler="on_player_selected" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="player_list_refresh_button">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="image">refresh_button_icon</property>
+                <property name="always_show_image">True</property>
+                <signal name="clicked" handler="on_refresh_button_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
             </child>
             <child>
               <object class="GtkBox">
@@ -344,6 +377,7 @@ In the winds of change
                 <child>
                   <object class="GtkButton" id="volume_button">
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="image">volume_normal_icon</property>
@@ -358,6 +392,7 @@ In the winds of change
                 <child>
                   <object class="GtkScale" id="player_volume_slider">
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="adjustment">player_volume_adjustment</property>
                     <property name="fill_level">20</property>

@@ -2,6 +2,7 @@ import threading
 from lingualyrics.scripts import dbus_handler
 from lingualyrics.scripts import lyric
 
+
 class MainWindowPresenter:
     def __init__(self, window):
         self.window = window
@@ -9,9 +10,23 @@ class MainWindowPresenter:
 
     def start_discovery(self):
         self.dbus_handler = dbus_handler.DbusHandler(self)
+
+        player_list = self.dbus_handler.get_available_players()
+        if player_list != []:
+            self.on_player_selected(player_list[0].split('.')[-1])
+            self.window.set_active_player_index(0)
+
         thread = threading.Thread(target=self.dbus_handler.on_player_position_slider_change, args=(self.thread_event, ))
         thread.daemon = True
         thread.start()
+
+    def on_player_selected(self, player_name):
+        if self.dbus_handler.is_player_available(player_name):
+            self.dbus_handler.create_player_proxy(player_name)
+            self.player_found()
+        else:
+            self.player_closed()
+            self.dbus_handler.get_available_players()
 
     def on_new_music_detected(self, artist, title):
         self.get_lyric(artist, title)
@@ -72,3 +87,19 @@ class MainWindowPresenter:
         self.thread_event.clear()
         self.dbus_handler.set_player_position(position)
         self.thread_event.set()
+    
+    def set_player_list_comboboxtext(self, player_list):
+        if player_list == []:
+            self.player_closed()
+        self.window.set_player_list_combobox(player_list)
+    
+    def refresh_player_list(self):
+        player_list = self.dbus_handler.get_available_players()
+        self.set_player_list_comboboxtext(player_list)
+    
+    def player_closed(self):
+        self.window.player_buttons_sensitivity(False)
+        self.window.set_active_player_index(-1)
+    
+    def player_found(self):
+        self.window.player_buttons_sensitivity(True)
