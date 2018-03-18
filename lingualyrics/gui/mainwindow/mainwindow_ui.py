@@ -1,6 +1,6 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 from lingualyrics.gui.mainwindow import mainwindow_presenter
 from lingualyrics.scripts import utils
 
@@ -32,7 +32,6 @@ class Handler:
     
     def on_refresh_button_clicked(self, *args):
         self.presenter.refresh_player_list()
-        print("on refresh")
     
     def on_player_selected(self, *args):
         active_text = args[0].get_active_text()
@@ -83,7 +82,6 @@ class MainWindow():
         self.play_pause_button.set_sensitive(sensitive)
 
     def set_play_pause_button_state(self, state):
-        print("set_play_pause_button_state")
         if state == "Playing":
             self.play_pause_button.set_image(self.pause_icon)
         if state == "Paused":
@@ -106,7 +104,6 @@ class MainWindow():
     
     def set_player_list_combobox(self, player_list):
         previous_player = self.player_list_combobox.get_active_text()
-        print("previous player: ", previous_player)
         for i in self.player_list:
             self.player_list_combobox.remove(0)
         self.player_list = player_list
@@ -118,11 +115,9 @@ class MainWindow():
             player_list_names.append(player_name)
 
         if previous_player in player_list_names: 
-            print("previous player: ", "first if")
             index = player_list_names.index(previous_player)
             self.set_active_player_index(index)
         else:
-            print("previous player: ", "else")
             self.set_active_player_index(-1)
 
     def set_bottom_menu_container_sensitivity(self, sensitive):

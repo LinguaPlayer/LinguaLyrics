@@ -1,12 +1,15 @@
 import threading
 from lingualyrics.scripts import dbus_handler
 from lingualyrics.scripts import lyric
+from gi.repository import GLib
 
 
 class MainWindowPresenter:
     def __init__(self, window):
         self.window = window
         self.thread_event = threading.Event()
+        self.music_data = None
+        self.fetched_lyric_data = None
 
     def start_discovery(self):
         self.dbus_handler = dbus_handler.DbusHandler(self)
@@ -31,20 +34,28 @@ class MainWindowPresenter:
     def on_new_music_detected(self, artist, title):
         self.get_lyric(artist, title)
 
-    def get_lyric(self, artist, title):
-            print('Now playing', end=": ")
-            print('{_artist} - {_title}'.format(_artist=artist, _title=title))
-            print('\n')
-            print("*" * 20)
-            lyric_text = lyric.get_lyric(artist, title)
-            if lyric_text is not None:
-                # print(lyric_text)
-                self.window.set_lyric_text(lyric_text)
-            else:
-                print("Sorry! no lyric found")
+    def on_lyric_fetch(self, artist, title, lyric_text):
+        if self.fetched_lyric_data == self.music_data:
+            return
 
-            print("*" * 20)
-            print('\n')
+        if (artist, title) != self.music_data:
+            return
+        self.fetched_lyric_data = (artist, title)
+
+        if lyric_text is not None:
+            GLib.idle_add(self.show_message, lyric_text)
+        else:
+            GLib.idle_add(self.show_message, "Sorry! no lyric found for {_artist} - {_title}".format(_artist=artist, _title=title))
+
+    def get_lyric(self, artist, title):
+            self.show_message('Searching lyric for {_artist} - {_title}'.format(_artist=artist, _title=title))
+            self.music_data = (artist, title)
+            thread = threading.Thread(target=lyric.get_lyric, args=(artist, title, self.on_lyric_fetch ))
+            thread.daemon = True
+            thread.start()
+
+    def show_message(self, message):
+        self.window.set_lyric_text(message)
 
     def on_playback_status(self, status):
         if status == "Playing":
