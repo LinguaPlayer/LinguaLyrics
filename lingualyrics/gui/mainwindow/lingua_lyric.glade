@@ -24,6 +24,7 @@
     <property name="halign">start</property>
     <property name="icon_name">zoom-in</property>
   </object>
+  <object class="GtkTextBuffer" id="lyric_text_buffer"/>
   <object class="GtkImage" id="next_media_icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -64,7 +65,6 @@
     <property name="pixel_size">24</property>
     <property name="icon_name">view-refresh</property>
   </object>
-  <object class="GtkTextBuffer" id="textbuffer1"/>
   <object class="GtkImage" id="volume_mute_icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -80,6 +80,7 @@
   <object class="GtkWindow" id="window_main">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Lingua Lyrics</property>
+    <property name="default_width">640</property>
     <signal name="delete-event" handler="on_window_main_destroy" swapped="no"/>
     <child>
       <object class="GtkBox">
@@ -146,6 +147,7 @@
                 <property name="receives_default">True</property>
                 <property name="image">increase_font_siz</property>
                 <property name="always_show_image">True</property>
+                <signal name="clicked" handler="on_font_plus_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -159,6 +161,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="image">decrease_font_siz</property>
+                <signal name="clicked" handler="on_font_minus_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -206,7 +209,7 @@
                 <property name="right_margin">10</property>
                 <property name="top_margin">10</property>
                 <property name="bottom_margin">10</property>
-                <property name="buffer">textbuffer1</property>
+                <property name="buffer">lyric_text_buffer</property>
                 <property name="monospace">True</property>
               </object>
             </child>

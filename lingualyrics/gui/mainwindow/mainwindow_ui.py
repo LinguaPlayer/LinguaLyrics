@@ -1,12 +1,14 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib 
 from lingualyrics.gui.mainwindow import mainwindow_presenter
 from lingualyrics.scripts import utils
 
+
 class Handler:
-    def __init__(self, presenter):
+    def __init__(self, presenter, window):
         self.presenter = presenter
+        self.window = window
 
     def on_window_main_destroy(self, *args):
         Gtk.main_quit(*args)
@@ -37,6 +39,12 @@ class Handler:
         active_text = args[0].get_active_text()
         if active_text is not None:
             self.presenter.on_player_selected(active_text)
+    
+    def on_font_plus_button_clicked(self, *args):
+        self.presenter.font_plus_button_clicked(self.window.get_font_size())
+
+    def on_font_minus_button_clicked(self, *args):
+        self.presenter.font_minus_button_clicked(self.window.get_font_size())
 
 
 class MainWindow():
@@ -49,6 +57,9 @@ class MainWindow():
         self.window = builder.get_object("window_main")
         self.window.show_all()
         self.lyric_text_view = builder.get_object("lyric_text_view")
+        self.lyric_text_buffer = builder.get_object("lyric_text_buffer")
+        self.size_tag = self.lyric_text_buffer.create_tag("font-size")
+        self.set_font_size(14)
 
         self.next_media_button = builder.get_object("next_media_button")
         self.play_pause_button = builder.get_object("play_pause_button")
@@ -66,11 +77,24 @@ class MainWindow():
         self.box = builder.get_object("buttom_menu_container")
         self.player_list = []
         self.presenter.start_discovery()
-        builder.connect_signals(Handler(self.presenter))
+        builder.connect_signals(Handler(self.presenter, self))
         Gtk.main()
-   
+
+    def set_font_size(self, value):
+        self.size_tag.set_property('size_points', value)
+
+    def get_font_size(self):
+        size = self.size_tag.get_property('size_points')
+        return size
+
+    def set_lyric_style(self):
+        start = self.lyric_text_buffer.get_start_iter()
+        end = self.lyric_text_buffer.get_end_iter()
+        self.lyric_text_buffer.apply_tag(self.size_tag, start, end)
+
     def set_lyric_text(self, text):
         self.lyric_text_view.get_buffer().set_text(text)
+        self.set_lyric_style()
     
     def set_next_media_button_sensitivity(self, sensitive):
         self.next_media_button.set_sensitive(sensitive)

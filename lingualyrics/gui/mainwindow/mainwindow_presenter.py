@@ -84,6 +84,17 @@ class MainWindowPresenter:
 
     def next_media_button_clicked(self, *args):
         self.dbus_handler.player_next_media()
+    
+    def font_plus_button_clicked(self, current_size):
+        print(current_size)
+        if current_size < 30:
+            self.window.set_font_size(current_size+0.5)
+            self.window.set_lyric_style()
+
+    def font_minus_button_clicked(self, current_size):
+        if current_size > 10:
+            self.window.set_font_size(current_size-0.5)
+            self.window.set_lyric_style()
 
     def previous_media_button_clicked(self, *args): 
         self.dbus_handler.player_previous_media()
