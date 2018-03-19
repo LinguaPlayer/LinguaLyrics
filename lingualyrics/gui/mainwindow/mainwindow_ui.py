@@ -45,6 +45,13 @@ class Handler:
 
     def on_font_minus_button_clicked(self, *args):
         self.presenter.font_minus_button_clicked(self.window.get_font_size())
+    
+    def on_color_picker_button_clicked(self, *args):
+        # dlg = Gtk.ColorSelectionDialog("Select color")
+        # help(Gtk.ColorSelectionDialog)
+        # response = dlg.run()
+        # print(response)
+        print("TO DO")
 
 
 class MainWindow():
@@ -60,6 +67,7 @@ class MainWindow():
         self.lyric_text_buffer = builder.get_object("lyric_text_buffer")
         self.size_tag = self.lyric_text_buffer.create_tag("font-size")
         self.set_font_size(14)
+        # self.color_tag = self.lyric.lyric_text_buffer.create_tag("foreground-color")
 
         self.next_media_button = builder.get_object("next_media_button")
         self.play_pause_button = builder.get_object("play_pause_button")
@@ -74,7 +82,6 @@ class MainWindow():
         self.volume_button = builder.get_object("volume_button")
         self.player_list_combobox = builder.get_object("player_list_comboboxtext")
 
-        self.box = builder.get_object("buttom_menu_container")
         self.player_list = []
         self.presenter.start_discovery()
         builder.connect_signals(Handler(self.presenter, self))
@@ -143,9 +150,6 @@ class MainWindow():
             self.set_active_player_index(index)
         else:
             self.set_active_player_index(-1)
-
-    def set_bottom_menu_container_sensitivity(self, sensitive):
-        self.box.set_sensitive(False)
 
     def player_buttons_sensitivity(self, sensitive):
         self.set_next_media_button_sensitivity(sensitive)
