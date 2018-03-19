@@ -9,7 +9,7 @@ DBusGMainLoop(set_as_default=True)
 class DbusHandler:
 
     def __init__(self, presenter):
-        self.black_list_players = ['org.mpris.MediaPlayer2.audacious']
+        self.black_list_players = ['org.mpris.MediaPlayer2.audacious', 'org.mpris.MediaPlayer2.rhythmbox']
         self.mpris_player_interface = 'org.mpris.MediaPlayer2.Player'
         self.mpris_player_object_path = '/org/mpris/MediaPlayer2'
         self.properties_changed_signal = 'PropertiesChanged'
@@ -37,7 +37,6 @@ class DbusHandler:
         for item in self.black_list_players:
             if item in self.player_list:
                 self.player_list.remove(item)
-
         return self.player_list
         
     def on_owner_name_change(self, new_owner):
