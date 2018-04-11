@@ -87,6 +87,9 @@ class MainWindow():
         builder.connect_signals(Handler(self.presenter, self))
         Gtk.main()
 
+    def update_window_title(self, title):
+        self.window.set_title(title + " - " + "LinguaLyrics")
+
     def set_font_size(self, value):
         self.size_tag.set_property('size_points', value)
 

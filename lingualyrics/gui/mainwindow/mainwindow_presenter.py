@@ -32,6 +32,7 @@ class MainWindowPresenter:
             self.dbus_handler.get_available_players()
 
     def on_new_music_detected(self, artist, title):
+        self.window.update_window_title(artist+title)
         self.get_lyric(artist, title)
 
     def on_lyric_fetch(self, artist, title, lyric_text, error):
