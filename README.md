@@ -8,7 +8,7 @@ Lingualyrics is still under heavy development but you can try it with below inst
 ### dependencies:
 Python3
 
-pip3 install requests
+pip3 install -r requirements.txt
 
 ### How to run:
 `python3 ./start.py`
