@@ -37,5 +37,7 @@ def get_lyric(artist, title):
         return (None, "Check your network connection.")
     if response is not None:
         result = parse_response(response)
+    if result is not None:
+        result += "\n\n Lyric source: chartlyrics.com"
     return (result, None)
     
