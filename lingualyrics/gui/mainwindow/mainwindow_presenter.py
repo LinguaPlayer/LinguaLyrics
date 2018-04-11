@@ -34,18 +34,22 @@ class MainWindowPresenter:
     def on_new_music_detected(self, artist, title):
         self.get_lyric(artist, title)
 
-    def on_lyric_fetch(self, artist, title, lyric_text):
+    def on_lyric_fetch(self, artist, title, lyric_text, error):
+        if (artist, title) != self.music_data:
+            return
+
         if self.fetched_lyric_data == self.music_data:
             return
 
-        if (artist, title) != self.music_data:
-            return
         self.fetched_lyric_data = (artist, title)
 
-        if lyric_text is not None:
-            GLib.idle_add(self.show_message, lyric_text)
+        if error is None:
+            if lyric_text is not None:
+                GLib.idle_add(self.show_message, lyric_text)
+            else:
+                GLib.idle_add(self.show_message, "Sorry! no lyric found for {_artist} - {_title}".format(_artist=artist, _title=title))
         else:
-            GLib.idle_add(self.show_message, "Sorry! no lyric found for {_artist} - {_title}".format(_artist=artist, _title=title))
+                GLib.idle_add(self.show_message, error)
 
     def get_lyric(self, artist, title):
             self.show_message('Searching lyric for {_artist} - {_title}'.format(_artist=artist, _title=title))
