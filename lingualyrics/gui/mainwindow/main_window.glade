@@ -4,6 +4,7 @@
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkImage" id="color_picker_icon">
     <property name="visible">True</property>
+    <property name="sensitive">False</property>
     <property name="can_focus">False</property>
     <property name="pixel_size">22</property>
     <property name="icon_name">gtk-select-color</property>
@@ -15,6 +16,7 @@
   </object>
   <object class="GtkImage" id="find_icon">
     <property name="visible">True</property>
+    <property name="sensitive">False</property>
     <property name="can_focus">False</property>
     <property name="icon_name">edit-find</property>
   </object>

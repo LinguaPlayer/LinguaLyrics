@@ -1,4 +1,5 @@
 import gi
+import os
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib 
 from lingualyrics.gui.mainwindow import mainwindow_presenter
@@ -58,7 +59,9 @@ class MainWindow():
 
     def __init__(self):
         builder = Gtk.Builder()
-        builder.add_from_file("lingualyrics/gui/mainwindow/lingua_lyric.glade")
+        base_path = os.path.abspath(os.path.dirname(__file__))
+        ui_layout_file = os.path.join(base_path, "main_window.glade")
+        builder.add_from_file(ui_layout_file)
         self.presenter = mainwindow_presenter.MainWindowPresenter(self)
 
         self.window = builder.get_object("window_main")

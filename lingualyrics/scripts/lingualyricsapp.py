@@ -13,7 +13,7 @@ class App(Gtk.Application):
 
     def __init__(self):
         Gtk.Application.__init__(self,
-                                 application_id="org.gnome.example",
+                                 application_id="ir.habibkazemi.lingualyrics",
                                  flags=Gio.ApplicationFlags.FLAGS_NONE)
 
     def do_activate(self):
