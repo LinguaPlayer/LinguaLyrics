@@ -1,9 +1,8 @@
 # Lingua Lyrics
 
-A lyric app that works with most of Linux music players.
+A lyric app that works with most of Linux music players.(Tested with clementine)
 
-# UNDER HEAVY DEVELOPMENT
-Lingualyrics is still under heavy development but you can try it with below instructions :)
+![screenshot](./LinguaRepo/assets/screenshot.png)
 
 ### dependencies:
 Python3
@@ -20,7 +19,7 @@ pip3 install -r requirements.txt
 - [x] GUI
 - [ ] Package the app
 - [ ] Search in multiple lyric sources
-- [x] Work with other player like VLC, Spotify,...
+- [ ] Test with other player like VLC, Smplayer, Rhythmbox, Spotify,...
 - [ ] Translation of words 
 - [ ] Find correct lyric with audio fingerprint
 - [ ] Show all available lyrics and choose between them
