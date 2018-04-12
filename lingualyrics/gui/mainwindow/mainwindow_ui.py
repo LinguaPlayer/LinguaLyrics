@@ -1,7 +1,7 @@
 import gi
 import os
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib 
+from gi.repository import Gtk, GLib,Gdk
 from lingualyrics.gui.mainwindow import mainwindow_presenter
 from lingualyrics.scripts import utils
 
@@ -54,6 +54,18 @@ class Handler:
         # print(response)
         print("TO DO")
 
+    def on_leave_window(self, *args):
+        # self.window.hide_menus_and_title_bar()
+        # print("on leave window")
+        # print(args)
+        pass
+
+    def on_enter_window(self, *args):
+        # self.window.show_menus_and_title_bar()
+        # print("on enter window")
+        # print(args)
+        pass
+
 
 class MainWindow():
 
@@ -69,6 +81,11 @@ class MainWindow():
         self.lyric_text_view = builder.get_object("lyric_text_view")
         self.lyric_text_buffer = builder.get_object("lyric_text_buffer")
         self.size_tag = self.lyric_text_buffer.create_tag("font-size")
+        self.clickable_tag = self.lyric_text_buffer.create_tag("clickable_tag")
+        self.clickable_tag.connect("event", self.handle_try_again_click)
+        self.clickable_tag.set_property("underline", True)
+        self.clickable_tag_color = self.lyric_text_buffer.create_tag("clickable_color")
+        self.clickable_tag_color.set_property("foreground", "blue")
         self.set_font_size(14)
         # self.color_tag = self.lyric.lyric_text_buffer.create_tag("foreground-color")
 
@@ -109,6 +126,20 @@ class MainWindow():
         self.lyric_text_view.get_buffer().set_text(text)
         self.set_lyric_style()
     
+    def show_error_with_retry_button(self, message):
+        retry_message = "\nTry again"
+        message += retry_message
+        self.lyric_text_view.get_buffer().set_text(message)
+        start = self.lyric_text_buffer.get_iter_at_offset(len(message)-len(retry_message))
+        end = self.lyric_text_buffer.get_iter_at_offset(len(message))
+        self.lyric_text_buffer.apply_tag(self.clickable_tag, start, end)
+        self.lyric_text_buffer.apply_tag(self.clickable_tag_color, start, end)
+
+    def handle_try_again_click(self, *args):    
+        if args[2].type == Gdk.EventType.BUTTON_RELEASE:
+            print("Retry")
+            self.presenter.retry_fetching_lyrics()
+
     def set_next_media_button_sensitivity(self, sensitive):
         self.next_media_button.set_sensitive(sensitive)
         
@@ -167,3 +198,9 @@ class MainWindow():
     
     def set_active_player_index(self, index):
         self.player_list_combobox.set_active(index)
+
+    # def hide_menus_and_title_bar(self):
+    #     self.window.set_decorated(False)
+
+    # def show_menus_and_title_bar(self):
+    #     self.window.set_decorated(True)

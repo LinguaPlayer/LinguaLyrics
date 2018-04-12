@@ -10,6 +10,7 @@ class MainWindowPresenter:
         self.thread_event = threading.Event()
         self.music_data = None
         self.fetched_lyric_data = None
+        self.retried = False
 
     def start_discovery(self):
         self.dbus_handler = dbus_handler.DbusHandler(self)
@@ -32,15 +33,22 @@ class MainWindowPresenter:
             self.dbus_handler.get_available_players()
 
     def on_new_music_detected(self, artist, title):
+        self.retried = False
         self.window.update_window_title(artist+title)
         self.get_lyric(artist, title)
+    
+    def retry_fetching_lyrics(self):
+        self.retried = True
+        self.get_lyric(self.music_data[0], self.music_data[1])
 
     def on_lyric_fetch(self, artist, title, lyric_text, error):
         if (artist, title) != self.music_data:
             return
 
-        if self.fetched_lyric_data == self.music_data:
+        if self.fetched_lyric_data == self.music_data and not self.retried:
             return
+
+        self.retried = False
 
         self.fetched_lyric_data = (artist, title)
 
@@ -50,7 +58,7 @@ class MainWindowPresenter:
             else:
                 GLib.idle_add(self.show_message, "Sorry! no lyric found for {_artist} - {_title}".format(_artist=artist, _title=title))
         else:
-                GLib.idle_add(self.show_message, error)
+                GLib.idle_add(self.show_error, error)
 
     def get_lyric(self, artist, title):
             self.show_message('Searching lyric for {_artist} - {_title}'.format(_artist=artist, _title=title))
@@ -61,6 +69,9 @@ class MainWindowPresenter:
 
     def show_message(self, message):
         self.window.set_lyric_text(message)
+    
+    def show_error(self, message):
+        self.window.show_error_with_retry_button(message)
 
     def on_playback_status(self, status):
         if status == "Playing":
