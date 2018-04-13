@@ -1,0 +1,7 @@
+[Desktop Entry]
+Comment=Lyric app for linux
+Terminal=false
+Name=Lingua Lyrics
+Exec=lingualyrics
+Type=Application
+Icon=gnome-panel-launcher

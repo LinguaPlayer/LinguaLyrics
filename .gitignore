@@ -13,3 +13,5 @@ pyvenv.cfg
 .venv
 pip-selfcheck.json
 share/
+dist/
+lingualyrics.egg-info/
