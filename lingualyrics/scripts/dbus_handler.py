@@ -109,8 +109,13 @@ class DbusHandler:
             time.sleep(1)
 
     def on_metadata(self, metadata):
+
         artist = ''
         title = ''
+        path = ''
+
+        if 'xesam:url' in metadata:
+            path = metadata['xesam:url']
         if 'xesam:artist' in metadata:
             artist = metadata['xesam:artist'][0]
         if 'xesam:title' in metadata:
@@ -122,7 +127,7 @@ class DbusHandler:
 
         # Got this signal multiple time
         if (artist, title) != self.last_track:
-            self.presenter.on_new_music_detected(artist, title)
+            self.presenter.on_new_music_detected(artist, title, path)
             self.last_track = (artist, title)
     
     def player_play_pause(self):

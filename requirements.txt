@@ -1,7 +1,9 @@
+audioread==2.1.5
 certifi==2018.1.18
 chardet==3.0.4
 dbus-python==1.2.4
 idna==2.6
+pyacoustid==1.1.5
 requests==2.18.4
 ruamel.yaml==0.15.35
 urllib3==1.22

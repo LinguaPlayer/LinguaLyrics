@@ -1,5 +1,6 @@
 import threading
 from lingualyrics.scripts import dbus_handler
+from lingualyrics.scripts import aidmatch
 from lingualyrics.scripts import lyric
 from gi.repository import GLib
 
@@ -11,6 +12,7 @@ class MainWindowPresenter:
         self.music_data = None
         self.fetched_lyric_data = None
         self.retried = False
+        self.music_path = None
 
     def start_discovery(self):
         self.dbus_handler = dbus_handler.DbusHandler(self)
@@ -32,20 +34,39 @@ class MainWindowPresenter:
             self.player_closed()
             self.dbus_handler.get_available_players()
 
-    def on_new_music_detected(self, artist, title):
+    def on_new_music_detected(self, artist, title, path):
         self.retried = False
         self.window.update_window_title(artist+title)
-        self.get_lyric(artist, title)
+        self.music_path = path[7:]
+        print(self.music_path)
+        self.get_lyric(artist, title, False)
     
     def retry_fetching_lyrics(self):
         self.retried = True
         self.get_lyric(self.music_data[0], self.music_data[1])
+    
+    def get_lyric_with_audiofingerprint(self):
+        self.show_message("Getting the metadata using fingerprint ... ")
+        thread = threading.Thread(target=aidmatch.aidmatch, args=(self.music_path, self.on_download_metatdata))
+        thread.daemon = True
+        thread.start()
+    
+    def on_download_metatdata(self, results):
+        try:
+            score, rid, title, artist = next(results)
+            self.window.update_window_title(artist+title)
+            self.retried = True
+            GLib.idle_add(self.get_lyric, artist, title, True)
+        except StopIteration:
+            print("No metadata found for this fingerprint")
+            GLib.idle_add(self.show_lyric_not_found, "Sorry fingerprint didn't help :(", True)
 
-    def on_lyric_fetch(self, artist, title, lyric_text, error):
+    def on_lyric_fetch(self, artist, title, lyric_text, tried_with_fingerprint, error):
         if (artist, title) != self.music_data:
             return
 
         if self.fetched_lyric_data == self.music_data and not self.retried:
+            print("This really happens!!!!!")
             return
 
         self.retried = False
@@ -54,21 +75,30 @@ class MainWindowPresenter:
 
         if error is None:
             if lyric_text is not None:
-                GLib.idle_add(self.show_message, lyric_text)
+                GLib.idle_add(self.show_lyric_found, lyric_text, tried_with_fingerprint)
             else:
-                GLib.idle_add(self.show_message, "Sorry! no lyric found for {_artist} - {_title}".format(_artist=artist, _title=title))
+                if tried_with_fingerprint:
+                    GLib.idle_add(self.show_lyric_not_found, "Sorry fingerprint didn't help :(", tried_with_fingerprint)
+                else:
+                    GLib.idle_add(self.show_lyric_not_found, "Sorry! no lyric found for this music", tried_with_fingerprint)
         else:
                 GLib.idle_add(self.show_error, error)
 
-    def get_lyric(self, artist, title):
+    def get_lyric(self, artist, title, tried_with_fingerprint):
             self.show_message('Searching lyric for {_artist} - {_title}'.format(_artist=artist, _title=title))
             self.music_data = (artist, title)
-            thread = threading.Thread(target=lyric.get_lyric, args=(artist, title, self.on_lyric_fetch ))
+            thread = threading.Thread(target=lyric.get_lyric, args=(artist, title, tried_with_fingerprint, self.on_lyric_fetch ))
             thread.daemon = True
             thread.start()
 
     def show_message(self, message):
-        self.window.set_lyric_text(message)
+        self.window.show_message(message)
+
+    def show_lyric_found(self, message, tried_with_fingerprint):
+        self.window.lyric_found_successfully(message, tried_with_fingerprint)
+    
+    def show_lyric_not_found(self, message, tried_with_fingerprint):
+        self.window.lyric_not_found(message, tried_with_fingerprint)
     
     def show_error(self, message):
         self.window.show_error_with_retry_button(message)
