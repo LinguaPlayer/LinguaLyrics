@@ -36,7 +36,7 @@ class MainWindowPresenter:
 
     def on_new_music_detected(self, artist, title, path):
         self.retried = False
-        self.window.update_window_title(artist+title)
+        self.window.update_window_title(artist, title)
         self.music_path = path[7:]
         print(self.music_path)
         self.get_lyric(artist, title, False)
@@ -54,7 +54,7 @@ class MainWindowPresenter:
     def on_download_metatdata(self, results):
         try:
             score, rid, title, artist = next(results)
-            self.window.update_window_title(artist+title)
+            self.window.update_window_title(artist, title)
             self.retried = True
             GLib.idle_add(self.get_lyric, artist, title, True)
         except StopIteration:
