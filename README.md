@@ -21,7 +21,7 @@ pip3 install -r requirements.txt
 - [ ] Search in multiple lyric sources
 - [ ] Test with other player like VLC, Smplayer, Rhythmbox, Spotify,...
 - [ ] Translation of words 
-- [ ] Find correct lyric with audio fingerprint
+- [x] Find correct lyric with audio fingerprint
 - [ ] Show all available lyrics and choose between them
 - [ ] Download the cover art
 - [ ] Offline view
