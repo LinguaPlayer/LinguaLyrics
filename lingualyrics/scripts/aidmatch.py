@@ -6,7 +6,7 @@ API_KEY = 'HEywukPjo9'
 
 
 def aidmatch(filename, callback):
-    results = None
+    results = iter(())
     try:
         results = acoustid.match(API_KEY, filename)
     except acoustid.NoBackendError:
@@ -17,12 +17,6 @@ def aidmatch(filename, callback):
         print("web service request failed:")
 
     callback(results)
-    # return results
-
-    # for score, rid, title, artist in results:
-    #     print("score: ", score)
-    #     print("artist: ", artist)
-    #     print("title: ", title)
 
 
 if __name__ == '__main__':
