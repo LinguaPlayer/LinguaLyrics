@@ -81,11 +81,17 @@ class MainWindow():
         self.lyric_text_view = builder.get_object("lyric_text_view")
         self.lyric_text_buffer = builder.get_object("lyric_text_buffer")
         self.size_tag = self.lyric_text_buffer.create_tag("font-size")
-        self.clickable_tag = self.lyric_text_buffer.create_tag("clickable_tag")
-        self.clickable_tag.connect("event", self.handle_try_again_click)
-        self.clickable_tag.set_property("underline", True)
-        self.clickable_tag_color = self.lyric_text_buffer.create_tag("clickable_color")
-        self.clickable_tag_color.set_property("foreground", "blue")
+        self.try_again_tag = self.lyric_text_buffer.create_tag("clickable_tag")
+        self.try_again_tag.connect("event", self.handle_try_again_click)
+        self.try_again_tag.set_property("underline", True)
+
+        self.blue_tag_color = self.lyric_text_buffer.create_tag("clickable_color")
+        self.blue_tag_color.set_property("foreground", "blue")
+
+        self.try_again_with_fingerprint_tag = self.lyric_text_buffer.create_tag("try_again_with_fingerprint")
+        self.try_again_with_fingerprint_tag.set_property("underline", True)
+        self.try_again_with_fingerprint_tag.connect("event", self.handle_try_again_with_fingerprint_click)
+
         self.set_font_size(14)
         # self.color_tag = self.lyric.lyric_text_buffer.create_tag("foreground-color")
 
@@ -107,8 +113,12 @@ class MainWindow():
         builder.connect_signals(Handler(self.presenter, self))
         Gtk.main()
 
-    def update_window_title(self, title):
-        self.window.set_title(title + " - " + "LinguaLyrics")
+    def update_window_title(self, artist, title):
+        if artist is None:
+            artist = ""
+        if title is None:
+            title = ""
+        self.window.set_title(artist.strip() + " " + title.strip() + " - " + "LinguaLyrics")
 
     def set_font_size(self, value):
         self.size_tag.set_property('size_points', value)
@@ -122,23 +132,55 @@ class MainWindow():
         end = self.lyric_text_buffer.get_end_iter()
         self.lyric_text_buffer.apply_tag(self.size_tag, start, end)
 
-    def set_lyric_text(self, text):
-        self.lyric_text_view.get_buffer().set_text(text)
+    def show_message(self, message):
+        self.lyric_text_view.get_buffer().set_text(message)
         self.set_lyric_style()
-    
+
+    def lyric_found_successfully(self, lyric_text, add_try_with_fingerprint):
+        if add_try_with_fingerprint:
+            lyric_is_wrong = "\n\nLyric is wrong?"
+            retry_message = " Try with audio fingerprint"
+            lyric_text += lyric_is_wrong + retry_message
+            self.show_message(lyric_text)
+            start = self.lyric_text_buffer.get_iter_at_offset(len(lyric_text)-len(retry_message))
+            end = self.lyric_text_buffer.get_iter_at_offset(len(lyric_text))
+            self.lyric_text_buffer.apply_tag(self.try_again_with_fingerprint_tag, start, end)
+            self.lyric_text_buffer.apply_tag(self.blue_tag_color, start, end)
+        else:
+            self.show_message(lyric_text)
+
+    def lyric_not_found(self, message, add_try_with_fingerprint):
+        if add_try_with_fingerprint:
+            retry_message = "\nTry with audio fingerprint"
+            message += retry_message
+            self.lyric_text_view.get_buffer().set_text(message)
+            start = self.lyric_text_buffer.get_iter_at_offset(len(message)-len(retry_message))
+            end = self.lyric_text_buffer.get_iter_at_offset(len(message))
+            self.lyric_text_buffer.apply_tag(self.try_again_with_fingerprint_tag, start, end)
+            self.lyric_text_buffer.apply_tag(self.blue_tag_color, start, end)
+        else:
+            self.lyric_text_view.get_buffer().set_text(message)
+        self.set_lyric_style()
+
     def show_error_with_retry_button(self, message):
         retry_message = "\nTry again"
         message += retry_message
         self.lyric_text_view.get_buffer().set_text(message)
         start = self.lyric_text_buffer.get_iter_at_offset(len(message)-len(retry_message))
         end = self.lyric_text_buffer.get_iter_at_offset(len(message))
-        self.lyric_text_buffer.apply_tag(self.clickable_tag, start, end)
-        self.lyric_text_buffer.apply_tag(self.clickable_tag_color, start, end)
+        self.set_lyric_style()
+        self.lyric_text_buffer.apply_tag(self.try_again_tag, start, end)
+        self.lyric_text_buffer.apply_tag(self.blue_tag_color, start, end)
 
     def handle_try_again_click(self, *args):    
         if args[2].type == Gdk.EventType.BUTTON_RELEASE:
             print("Retry")
             self.presenter.retry_fetching_lyrics()
+
+    def handle_try_again_with_fingerprint_click(self, *args):    
+        if args[2].type == Gdk.EventType.BUTTON_RELEASE:
+            print("Retry with fingerprint")
+            self.presenter.get_lyric_with_audiofingerprint()
 
     def set_next_media_button_sensitivity(self, sensitive):
         self.next_media_button.set_sensitive(sensitive)

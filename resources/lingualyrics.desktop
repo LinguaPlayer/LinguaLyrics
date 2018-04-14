@@ -1,0 +1,8 @@
+[Desktop Entry]
+Comment=LinguaLyrics is a linux app that communicates with your music player to get the current song metadata and then shows the matching lyric
+Terminal=false
+Name=Lingua Lyrics
+Exec=lingualyrics
+Type=Application
+Icon=lingualyrics
+Categories=AudioVideo;

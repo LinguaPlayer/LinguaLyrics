@@ -1,0 +1,5 @@
+recursive-include lingualyrics *.glade
+include *.md
+include *.py 
+include LICENSE
+include requirements.txt
