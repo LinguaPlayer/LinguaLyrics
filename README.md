@@ -1,14 +1,13 @@
 # Lingua Lyrics
 
 Lingua Lyrics is a linux app that communicates with your music player to get the current song and then shows the lyric.
-It's fully compatible with clementine, try with other players it might work.(Better support in next updates ...)
 
 ![screenshot](./LinguaRepo/assets/screenshot.png)
 
 ## How Lingua lyrics works
-  Lingua lyrics gets the title and artist from you audio file and searchs for the lyric
+  Lingua lyrics gets the title and artist from your music player and searchs for its lyric
 ## My audio file doesn't have correct title and artist
-  Lingua lyrics can find the correct title and artist using audiofingerprint
+  Lingua lyrics can find the correct title and artist using acoustic fingerprinting
 ## INSTALLING Lingua Lyrics
 
 Just type:
@@ -21,11 +20,40 @@ Just type:
 
 	sudo python3 ./uninstall.py
 
+## Tested players
+
+### clementine
+	Completely supported
+	
+### vlc
+	Completely supported
+
+### smplayer
+	Partially supported:
+		music slider not works
+		volume slider not works
+	
+### deepinmusic
+	Partially supported:
+		music slider not works
+		pause button also mutes the player
+### gnome-music
+	Not supported yet
+	
+### rhythmbox
+	Not supported yet
+	
+### audacious
+	Not supported yet
+	
+## spotify
+	Not supported yet
+	
 ## TODO
 - [x] GUI
 - [x] Package the app
 - [ ] Search in multiple lyric sources
-- [ ] Test with other player like VLC, Smplayer, Rhythmbox, Spotify,...
+- [x] Test with other player like VLC, Smplayer, Rhythmbox, Spotify,...
 - [ ] Translation of words 
 - [x] Find correct lyric with audio fingerprint
 - [ ] Show all available lyrics and choose between them
