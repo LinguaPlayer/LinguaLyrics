@@ -72,7 +72,8 @@ if sys.argv[1] == "test":
 DESCRIPTION = 'Lingua Lyrics'
 
 DATA_FILES = [
-    ('/usr/share/applications/', ['resources/lingualyrics.desktop']),]
+    ('/usr/share/applications/', ['resources/lingualyrics.desktop']),
+    ('/usr/share/pixmaps/', ['resources/lingualyrics.svg'])]
 
 
 # finding current directory
