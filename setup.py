@@ -96,7 +96,7 @@ for folder in [root_pycache, src_pycache, gui_pycache, scripts_pycache, gui_main
 
 setup(
     name='lingualyrics',
-    version='1.0.0',
+    version='0.1.0',
     license='GPL3',
     description=DESCRIPTION,
     long_description=open('README.md').read(),
