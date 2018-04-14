@@ -9,7 +9,8 @@ DBusGMainLoop(set_as_default=True)
 class DbusHandler:
 
     def __init__(self, presenter):
-        self.black_list_players = ['org.mpris.MediaPlayer2.audacious', 'org.mpris.MediaPlayer2.rhythmbox']
+        self.black_list_players = ['org.mpris.MediaPlayer2.audacious', 'org.mpris.MediaPlayer2.rhythmbox', 
+                                    'org.mpris.MediaPlayer2.spotify','org.mpris.MediaPlayer2.GnomeMusic']
         self.mpris_player_interface = 'org.mpris.MediaPlayer2.Player'
         self.mpris_player_object_path = '/org/mpris/MediaPlayer2'
         self.properties_changed_signal = 'PropertiesChanged'
