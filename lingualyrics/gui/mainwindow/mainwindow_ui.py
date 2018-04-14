@@ -136,8 +136,8 @@ class MainWindow():
         self.lyric_text_view.get_buffer().set_text(message)
         self.set_lyric_style()
 
-    def lyric_found_successfully(self, lyric_text, tried_with_fingerprint):
-        if not tried_with_fingerprint:
+    def lyric_found_successfully(self, lyric_text, add_try_with_fingerprint):
+        if add_try_with_fingerprint:
             lyric_is_wrong = "\n\nLyric is wrong?"
             retry_message = " Try with audio fingerprint"
             lyric_text += lyric_is_wrong + retry_message
@@ -149,8 +149,8 @@ class MainWindow():
         else:
             self.show_message(lyric_text)
 
-    def lyric_not_found(self, message, tried_with_fingerprint):
-        if not tried_with_fingerprint:
+    def lyric_not_found(self, message, add_try_with_fingerprint):
+        if add_try_with_fingerprint:
             retry_message = "\nTry with audio fingerprint"
             message += retry_message
             self.lyric_text_view.get_buffer().set_text(message)

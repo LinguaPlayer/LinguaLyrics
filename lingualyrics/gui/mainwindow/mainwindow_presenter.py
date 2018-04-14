@@ -37,31 +37,36 @@ class MainWindowPresenter:
     def on_new_music_detected(self, artist, title, path):
         self.retried = False
         self.window.update_window_title(artist, title)
-        self.music_path = path[7:]
-        print(self.music_path)
-        self.get_lyric(artist, title, False)
+        self.music_path = path
+        if path.startswith("file://"):
+            self.music_path = self.music_path[7:]
+        enable_retry_with_fingerprint = True
+        # self.music_path is None or empty
+        if not self.music_path:
+            enable_retry_with_fingerprint = False
+        self.get_lyric(artist, title, enable_retry_with_fingerprint)
     
     def retry_fetching_lyrics(self):
         self.retried = True
-        self.get_lyric(self.music_data[0], self.music_data[1])
+        self.get_lyric(self.music_data[0], self.music_data[1], True)
     
     def get_lyric_with_audiofingerprint(self):
         self.show_message("Getting the metadata using fingerprint ... ")
-        thread = threading.Thread(target=aidmatch.aidmatch, args=(self.music_path, self.on_download_metatdata))
+        thread = threading.Thread(target=aidmatch.aidmatch, args=(self.music_path, self.on_download_metadata))
         thread.daemon = True
         thread.start()
     
-    def on_download_metatdata(self, results):
+    def on_download_metadata(self, results):
         try:
             score, rid, title, artist = next(results)
             self.window.update_window_title(artist, title)
             self.retried = True
-            GLib.idle_add(self.get_lyric, artist, title, True)
+            GLib.idle_add(self.get_lyric, artist, title, False)
         except StopIteration:
             print("No metadata found for this fingerprint")
-            GLib.idle_add(self.show_lyric_not_found, "Sorry fingerprint didn't help :(", True)
+            GLib.idle_add(self.show_lyric_not_found, "Sorry we couldn't find music metadata using fingerprint", False)
 
-    def on_lyric_fetch(self, artist, title, lyric_text, tried_with_fingerprint, error):
+    def on_lyric_fetch(self, artist, title, lyric_text, add_try_with_fingerprint, error):
         if (artist, title) != self.music_data:
             return
 
@@ -75,30 +80,27 @@ class MainWindowPresenter:
 
         if error is None:
             if lyric_text is not None:
-                GLib.idle_add(self.show_lyric_found, lyric_text, tried_with_fingerprint)
+                GLib.idle_add(self.show_lyric_found, lyric_text, add_try_with_fingerprint)
             else:
-                if tried_with_fingerprint:
-                    GLib.idle_add(self.show_lyric_not_found, "Sorry fingerprint didn't help :(", tried_with_fingerprint)
-                else:
-                    GLib.idle_add(self.show_lyric_not_found, "Sorry! no lyric found for this music", tried_with_fingerprint)
+                GLib.idle_add(self.show_lyric_not_found, "Sorry! no lyric found for this music", add_try_with_fingerprint)
         else:
                 GLib.idle_add(self.show_error, error)
 
-    def get_lyric(self, artist, title, tried_with_fingerprint):
+    def get_lyric(self, artist, title, add_try_with_fingerprint):
             self.show_message('Searching lyric for {_artist} - {_title}'.format(_artist=artist, _title=title))
             self.music_data = (artist, title)
-            thread = threading.Thread(target=lyric.get_lyric, args=(artist, title, tried_with_fingerprint, self.on_lyric_fetch ))
+            thread = threading.Thread(target=lyric.get_lyric, args=(artist, title, add_try_with_fingerprint, self.on_lyric_fetch))
             thread.daemon = True
             thread.start()
 
     def show_message(self, message):
         self.window.show_message(message)
 
-    def show_lyric_found(self, message, tried_with_fingerprint):
-        self.window.lyric_found_successfully(message, tried_with_fingerprint)
+    def show_lyric_found(self, message, add_try_with_fingerprint):
+        self.window.lyric_found_successfully(message, add_try_with_fingerprint)
     
-    def show_lyric_not_found(self, message, tried_with_fingerprint):
-        self.window.lyric_not_found(message, tried_with_fingerprint)
+    def show_lyric_not_found(self, message, add_try_with_fingerprint):
+        self.window.lyric_not_found(message, add_try_with_fingerprint)
     
     def show_error(self, message):
         self.window.show_error_with_retry_button(message)
