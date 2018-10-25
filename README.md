@@ -10,6 +10,11 @@ Lingua Lyrics is a linux app that communicates with your music player to get the
   Lingua lyrics can find the correct title and artist using acoustic fingerprinting
 ## INSTALLING Lingua Lyrics
 
+Install python-pip3:
+
+	Debian/Ubuntu:
+		sudo apt install python3-pip
+
 Just type:
 
 	sudo python3 ./setup.py install
