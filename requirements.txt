@@ -1,5 +1,5 @@
 audioread==2.1.5
-certifi==2018.1.18
+certifi==2022.12.7
 chardet==3.0.4
 dbus-python==1.2.4
 idna==2.6
